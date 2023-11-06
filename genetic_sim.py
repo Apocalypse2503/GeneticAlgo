@@ -37,6 +37,8 @@ from random import random
 from random import sample
 from random import uniform
 
+from flask import Flask, request, render_template
+
 # --- CONSTANTS ----------------------------------------------------------------+
 
 settings = {}
@@ -44,10 +46,13 @@ frames = []
 
 clock = pygame.time.Clock()
 width, height = 800, 600
+
+app = Flask(__name__) #Flask app
+
 # EVOLUTION SETTINGS
 settings["pop_size"] = 50  # number of organisms
 settings["food_num"] = 100  # number of food particles
-settings["gens"] = 10  # number of generations
+#settings["gens"] = 10  # number of generations
 settings["elitism"] = 0.20  # elitism (selection bias)
 settings["mutate"] = 0.10  # mutation rate
 
@@ -475,9 +480,22 @@ def run(settings):
 
     pass
 
+# --- Flask Front End --------------------------------------------------------+
+
+@app.route('/', methods = ['GET', 'POST'])
+def playSimulation():
+    if request.method == "POST":
+       # getting input with name = gen in HTML form
+       temp = request.form.get("gen")
+       settings["gens"] = int(temp)
+       run(settings)
+       return render_template('video.html')
+    return render_template('simulate.html')
+
 
 # --- RUN ----------------------------------------------------------------------+
 
-run(settings)
+if __name__ == '__main__':
+    app.run()
 
 # --- END ----------------------------------------------------------------------+
